@@ -45,8 +45,8 @@ class Event(models.Model):
         '''
         Returns the dateutil.rrule object instance associated with this Event
         '''
-        if self.rule:
-            return rrule(eval(self.rule.frequency), dtstart=self.startdatetime, **self.get_rule_params())
+        if self.recurring:
+            return rrule(eval(self.frequency), dtstart=self.startdatetime, **self.get_rule_params())
         return None
 
     def get_event_occurrences(self, start, end):
@@ -54,15 +54,13 @@ class Event(models.Model):
         Accepts start and end datetime objects and returns a list of Event objects that fall between the start and end date arguments,
         representing occurrences of this particular event. 
         '''
-        if self.rule:
+        if self.recurring:
             rule = self.get_recurrence_rule()
             recurrence_dates = rule.between(start, end, inc=True)
             duration = self.enddatetime - self.startdatetime
             events = [Event(
                 id=self.id,
                 name=self.name, 
-                creator=self.creator, 
-                rule=self.rule, 
                 startdatetime=date,
                 enddatetime=date+duration,
                 allday=self.allday,
@@ -116,6 +114,13 @@ class Event(models.Model):
         event_dict['end'] = self.enddatetime.isoformat()
 
         return event_dict
+
+    @staticmethod
+    def get_event_occurrences_static(start, end):
+        events = Event.objects.all()
+        event_occurrences = [event.get_event_occurrences(start, end) for event in events]
+        event_occurrences_flat = [item for sublist in event_occurrences for item in sublist] #flatten the list of lists of events
+        return event_occurrences_flat
 
     def __str__(self):
         return self.name
