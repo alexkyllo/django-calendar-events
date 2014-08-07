@@ -1,0 +1,16 @@
+[
+{
+  "pk": 1, 
+  "model": "calendar_events.event", 
+  "fields": {
+    "allday": false, 
+    "name": "Test Event", 
+    "enddatetime": "2014-08-02T01:10:43.790Z", 
+    "byweekday": "['SA']", 
+    "frequency": "WEEKLY", 
+    "startdatetime": "2014-08-02T00:10:52.241Z", 
+    "recurring": true, 
+    "until": "2014-10-01T01:10:43Z"
+  }
+}
+]

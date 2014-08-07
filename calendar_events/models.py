@@ -14,6 +14,18 @@ FREQUENCY_CHOICES = (
     ('DAILY','daily'),
 )
 
+WEEKDAYS = ('MO','TU','WE','TH','FR','SA','SU')
+
+DAY_CHOICES = (
+    (0,"Monday"),
+    (1,"Tuesday"),
+    (2,"Wednesday"),
+    (3,"Thursday"),
+    (4,"Friday" ),
+    (5,"Saturday"),
+    (6,"Sunday"),
+)
+
 class Event(models.Model):
     '''
     This class defines a calendar event instance, which may be one-time or recurring (using dateutil.rrule)
@@ -24,7 +36,7 @@ class Event(models.Model):
     allday = models.BooleanField(default=False)
     recurring = models.BooleanField(default=False)
     frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, blank=True)
-    byweekday = models.CharField(max_length=36, blank=True)
+    byweekday = models.CommaSeparatedIntegerField(max_length=36, blank=True)
     until = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -33,11 +45,12 @@ class Event(models.Model):
             self.enddatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day + timedelta(days=1)))
         if self.until:
             self.until = from_current_timezone(self.until)
+        #self.byweekday = [int(day) for day in self.byweekday]
         super(Event, self).save(*args, **kwargs)
 
     def get_rule_params(self):
         return {
-                'byweekday':[eval(day) if self.byweekday is not None else '' for day in eval(self.byweekday)],
+                'byweekday':[eval(WEEKDAYS[int(day)]) if self.byweekday is not None else '' for day in self.byweekday.split(',')],
                 'until':self.until,
             }
 
@@ -49,7 +62,7 @@ class Event(models.Model):
             return rrule(eval(self.frequency), dtstart=self.startdatetime, **self.get_rule_params())
         return None
 
-    def get_event_occurrences(self, start, end):
+    def get_occurrences(self, start, end):
         '''
         Accepts start and end datetime objects and returns a list of Event objects that fall between the start and end date arguments,
         representing occurrences of this particular event. 
@@ -72,15 +85,7 @@ class Event(models.Model):
             else: 
                 return []
 
-    def get_occurrences(self, start, end):
-        '''
-        Accepts start and end datetime objects and returns a list of datetime objects that fall between the start and end date arguments
-        according to this event's recurrence rule.
-        '''
-        rule = self.get_recurrence_rule()
-        return rule.between(start, end, inc=True)
-
-    def get_month_event_occurrences(self, *args, **kwargs):
+    def get_month_occurrences(self, *args, **kwargs):
         '''
         Takes a year and month as arguments and returns a list of datetime objects representing the 
         occurrences of the event during the specified month
@@ -92,7 +97,7 @@ class Event(models.Model):
         occurrences = self.get_occurrences(start=datetime(year, month, 1, tzinfo=utc), end=datetime(year, month+1, 1, tzinfo=utc))
         return occurrences 
 
-    def get_week_event_occurrences(self, *args, **kwargs):
+    def get_week_occurrences(self, *args, **kwargs):
         '''
         Takes a year, and week as arguments and returns a list of datetime objects representing the occurrences 
         of the event during the specified week
@@ -112,21 +117,7 @@ class Event(models.Model):
         event_dict['allDay'] = self.allday
         event_dict['start'] = self.startdatetime.isoformat()
         event_dict['end'] = self.enddatetime.isoformat()
-
         return event_dict
-
-    @staticmethod
-    def get_event_occurrences_static(start, end):
-        events = Event.objects.all()
-        event_occurrences = [event.get_event_occurrences(start, end) for event in events]
-        event_occurrences_flat = [item for sublist in event_occurrences for item in sublist] #flatten the list of lists of events
-        return event_occurrences_flat
 
     def __str__(self):
         return self.name
-
-class Occurrence(models.Model):
-    '''
-    Persists an occurrence instance of a recurring event to the database so that other objects can be associated to an occurrence.
-    '''
-    event = models.ForeignKey(Event)
