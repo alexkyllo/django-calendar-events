@@ -42,6 +42,7 @@ class Event(models.Model):
     def save(self, *args, **kwargs):
         if self.allday == True:
             self.startdatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day))
+            ###todo: fix this, it doesn't work
             self.enddatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day + timedelta(days=1)))
         if self.until:
             self.until = from_current_timezone(self.until)
