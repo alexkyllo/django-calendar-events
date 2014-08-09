@@ -42,8 +42,7 @@ class Event(models.Model):
     def save(self, *args, **kwargs):
         if self.allday == True:
             self.startdatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day))
-            ###todo: fix this, it doesn't work
-            self.enddatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day + timedelta(days=1)))
+            self.enddatetime = from_current_timezone(datetime(self.startdatetime.year, self.startdatetime.month, self.startdatetime.day + 1))
         if self.until:
             self.until = from_current_timezone(self.until)
         #self.byweekday = [int(day) for day in self.byweekday]
@@ -118,7 +117,12 @@ class Event(models.Model):
         event_dict['allDay'] = self.allday
         event_dict['start'] = self.startdatetime.isoformat()
         event_dict['end'] = self.enddatetime.isoformat()
+        event_dict['url'] = self.get_absolute_url()
         return event_dict
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('event_detail', args=[str(self.id)])
 
     def __str__(self):
         return self.name

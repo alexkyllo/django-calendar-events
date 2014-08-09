@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>{{event.name}}</h3>
+<p>Start Date/Time: {{event.startdatetime}}</p>
+<p>End Date/Time: {{event.enddatetime}}</p>
+<p>Recurring: {{event.recurring}}</p>
+{% if event.recurring %}
+<p>Frequency: {{event.frequency}}</p>
+<p>Weekdays: {{event.byweekday}}</p>
+{% endif %}
+{% endblock %}

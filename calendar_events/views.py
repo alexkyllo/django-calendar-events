@@ -50,5 +50,5 @@ class EventUpdate(UpdateView):
     model = Event
     form_class = EventForm
 
-class CourseDetail(DetailView):
+class EventDetail(DetailView):
     model = Event
