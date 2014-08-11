@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static "fullcalendar-2.0.0/fullcalendar.css" %}" />
+<link rel="stylesheet" href="{% static "fullcalendar-2.0.0/fullcalendar.print.css" %}"/>
 	<h2>Create/Update Event</h2>
 	<form action="" method="post">
 		{% csrf_token %}
 
 		{{form.as_p}}
-		<input type="submit" value="Save"/>
+		<input type="submit" class='fc fc-header fc-button fc-button-today fc-state-default fc-corner-left fc-corner-right' value="Save"/>
 	</form>
 {% endblock %}

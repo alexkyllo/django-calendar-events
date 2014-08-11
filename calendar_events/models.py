@@ -15,6 +15,7 @@ FREQUENCY_CHOICES = (
 )
 
 WEEKDAYS = ('MO','TU','WE','TH','FR','SA','SU')
+WEEKDAY_NAMES = ('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')
 
 DAY_CHOICES = (
     (0,"Monday"),
@@ -123,6 +124,9 @@ class Event(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('event_detail', args=[str(self.id)])
+
+    def get_weekdays(self):
+        return [WEEKDAY_NAMES[int(x)] for x in self.byweekday.split(',')]
 
     def __str__(self):
         return self.name

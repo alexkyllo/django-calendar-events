@@ -6,6 +6,9 @@
 <p>Recurring: {{event.recurring}}</p>
 {% if event.recurring %}
 <p>Frequency: {{event.frequency}}</p>
-<p>Weekdays: {{event.byweekday}}</p>
+<p>Weekdays: {{event.get_weekdays}}</p>
 {% endif %}
+  <form action="update/" method="get">
+    <input type="submit" class='fc fc-header fc-button fc-button-today fc-state-default fc-corner-left fc-corner-right' value="edit event">
+  </form>
 {% endblock %}
