@@ -128,5 +128,5 @@ class Event(models.Model):
     def get_weekdays(self):
         return [WEEKDAY_NAMES[int(x)] for x in self.byweekday.split(',')]
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
